@@ -11,6 +11,7 @@ import type {LexicalEditor, NodeKey} from 'lexical';
 import '../ui/TableOfContentsStyle.css';
 
 import LexicalTableOfContents__EXPERIMENTAL from '@lexical/react/LexicalTableOfContents__EXPERIMENTAL';
+import {$getNearestNodeFromDOMNode} from 'lexical';
 import {useEffect, useState} from 'react';
 import * as React from 'react';
 
@@ -28,7 +29,12 @@ function TableOfContentsList({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting === true) {
-            setSelectedKey(entry.target.id);
+            editor.update(() => {
+              const node = $getNearestNodeFromDOMNode(entry.target);
+              if (node !== null) {
+                setSelectedKey(node.getKey());
+              }
+            });
           }
         });
       },
@@ -38,7 +44,6 @@ function TableOfContentsList({
     tableOfContents.map((entry) => {
       const headingNode = editor.getElementByKey(entry[0]);
       if (headingNode !== null) {
-        headingNode.id = entry[0];
         observer.observe(headingNode);
       }
     });
@@ -51,7 +56,7 @@ function TableOfContentsList({
         }
       });
     };
-  });
+  }, [editor, tableOfContents]);
   function scrollToNode(key: NodeKey) {
     editor.getEditorState().read(() => {
       const domElement = editor.getElementByKey(key);
