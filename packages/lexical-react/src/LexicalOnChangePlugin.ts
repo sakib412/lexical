@@ -18,7 +18,11 @@ export function OnChangePlugin({
 }: {
   ignoreInitialChange?: boolean;
   ignoreSelectionChange?: boolean;
-  onChange: (editorState: EditorState, editor: LexicalEditor) => void;
+  onChange: (
+    editorState: EditorState,
+    editor: LexicalEditor,
+    details: {isInitialChange: boolean; isSelectionChange: boolean},
+  ) => void;
 }): null {
   const [editor] = useLexicalComposerContext();
 
@@ -26,19 +30,19 @@ export function OnChangePlugin({
     if (onChange) {
       return editor.registerUpdateListener(
         ({editorState, dirtyElements, dirtyLeaves, prevEditorState}) => {
-          if (
-            ignoreSelectionChange &&
-            dirtyElements.size === 0 &&
-            dirtyLeaves.size === 0
-          ) {
+          const isInitialChange = prevEditorState.isEmpty();
+          const isSelectionChange =
+            dirtyElements.size === 0 && dirtyLeaves.size === 0;
+
+          if (isSelectionChange && ignoreSelectionChange) {
             return;
           }
 
-          if (ignoreInitialChange && prevEditorState.isEmpty()) {
+          if (isInitialChange && ignoreInitialChange) {
             return;
           }
 
-          onChange(editorState, editor);
+          onChange(editorState, editor, {isInitialChange, isSelectionChange});
         },
       );
     }
