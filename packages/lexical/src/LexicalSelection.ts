@@ -426,18 +426,17 @@ export class GridSelection implements BaseSelection {
   }
 
   insertRawText(text: string): void {
-    // Do nothing?
+    const selection = $selectGridFocusNode(this);
+    return selection.insertRawText(text);
   }
 
-  insertText(): void {
-    // Do nothing?
+  insertText(text: string): void {
+    const selection = $selectGridFocusNode(this);
+    return selection.insertText(text);
   }
 
   insertNodes(nodes: Array<LexicalNode>, selectStart?: boolean): boolean {
-    const focusNode = this.focus.getNode();
-    const selection = $normalizeSelection(
-      focusNode.select(0, focusNode.getChildrenSize()),
-    );
+    const selection = $selectGridFocusNode(this);
     return selection.insertNodes(nodes, selectStart);
   }
 
@@ -2691,6 +2690,11 @@ export function updateDOMSelection(
     // occur with FF and there's no good reason as to why it
     // should happen.
   }
+}
+
+export function $selectGridFocusNode(selection: GridSelection): RangeSelection {
+  const focusNode = selection.focus.getNode();
+  return $normalizeSelection(focusNode.select(0, focusNode.getChildrenSize()));
 }
 
 export function $insertNodes(

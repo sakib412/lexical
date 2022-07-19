@@ -24,6 +24,7 @@ import {
   $getRoot,
   $getSelection,
   $isElementNode,
+  $isGridSelection,
   $isNodeSelection,
   $isRangeSelection,
   $isRootNode,
@@ -70,7 +71,11 @@ import {
   DOM_TEXT_TYPE,
   DOUBLE_LINE_BREAK,
 } from './LexicalConstants';
-import {internalCreateRangeSelection, RangeSelection} from './LexicalSelection';
+import {
+  $selectGridFocusNode,
+  internalCreateRangeSelection,
+  RangeSelection,
+} from './LexicalSelection';
 import {updateEditor} from './LexicalUpdates';
 import {
   $flushMutations,
@@ -378,7 +383,7 @@ function onBeforeInput(event: InputEvent, editor: LexicalEditor): void {
   }
 
   updateEditor(editor, () => {
-    const selection = $getSelection();
+    let selection = $getSelection();
 
     if (inputType === 'deleteContentBackward') {
       if (selection === null) {
@@ -419,7 +424,9 @@ function onBeforeInput(event: InputEvent, editor: LexicalEditor): void {
       }
     }
 
-    if (!$isRangeSelection(selection)) {
+    if ($isGridSelection(selection)) {
+      selection = $selectGridFocusNode(selection);
+    } else if (!$isRangeSelection(selection)) {
       return;
     }
 
