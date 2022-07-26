@@ -14,6 +14,7 @@ import {
   initialize,
   repeat,
   selectFromFormatDropdown,
+  sleep,
   // sleep,
   test,
   //   waitForSelector,
@@ -45,7 +46,7 @@ test.describe('Hashtags', () => {
       `,
     );
   });
-  test(`Scrolling through headigns in the editor makes them scroll inside the table of contents`, async ({
+  test.only(`Scrolling through headigns in the editor makes them scroll inside the table of contents`, async ({
     page,
   }) => {
     await focusEditor(page);
@@ -57,10 +58,11 @@ test.describe('Hashtags', () => {
     });
     await selectFromFormatDropdown(page, '.h2');
     await page.keyboard.type(' World');
-    await repeat(200, () => {
+    await repeat(400, () => {
       page.keyboard.type('\n');
     });
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await sleep(50);
     const tableOfContents = await getElement(page, 'ul.table-of-contents');
     await assertHTML(
       tableOfContents,
@@ -75,19 +77,20 @@ test.describe('Hashtags', () => {
         </div>
       `,
     );
-    // await page.evaluate(() => window.scrollTo(0, 0));
-    // await assertHTML(
-    //   tableOfContents,
-    //   html`
-    //     <div class="selectedHeading" role="button" tabindex="0">
-    //       <div class="circle"></div>
-    //       <li>Hello</li>
-    //     </div>
-    //     <div class="heading" role="button" tabindex="0">
-    //       <div class="bar"></div>
-    //       <li class="heading2">World</li>
-    //     </div>
-    //   `,
-    // );
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await sleep(50);
+    await assertHTML(
+      tableOfContents,
+      html`
+        <div class="selectedHeading" role="button" tabindex="0">
+          <div class="circle"></div>
+          <li>Hello</li>
+        </div>
+        <div class="heading" role="button" tabindex="0">
+          <div class="bar"></div>
+          <li class="heading2">World</li>
+        </div>
+      `,
+    );
   });
 });
